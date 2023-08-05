@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import com.example.weatherwatch.domain.weather.entities.Forecast
 import javax.inject.Inject
 
-class GetForecastUseCase@Inject constructor(
+class GetHourlyForecastUseCase@Inject constructor(
     private val repository: WeatherRepository
 ) {
 

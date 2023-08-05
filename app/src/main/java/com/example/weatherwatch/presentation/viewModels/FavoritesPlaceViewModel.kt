@@ -36,12 +36,11 @@ class FavoritesPlaceViewModel @Inject constructor(
     }
 
     fun placeSelect(place: PlaceInfo) {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
             placeInfoList.value?.forEach {
                 if (it.selected) {
                     Log.d("FavoritesPlaceViewModel", "UNSelected ${it.localNames}")
                     insertPlaceToDbUseCase.invoke(it.apply { selected = false })
-                    //return@forEach
                 }
             }
             Log.d("FavoritesPlaceViewModel", "Selected ${place.localNames}")

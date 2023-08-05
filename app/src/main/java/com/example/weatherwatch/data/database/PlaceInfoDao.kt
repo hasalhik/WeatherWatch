@@ -21,7 +21,7 @@ interface PlaceInfoDao {
     suspend fun setAllSelectedToFalse()
 
     @Query("SELECT * FROM place_list WHERE selected =:selected")
-    fun getSelected(selected: Boolean): PlaceInfoDbModel
+    suspend fun getSelected(selected: Boolean): PlaceInfoDbModel
 
     @Query("DELETE FROM place_list WHERE id=:placeId")
     suspend fun deletePlace(placeId: String)

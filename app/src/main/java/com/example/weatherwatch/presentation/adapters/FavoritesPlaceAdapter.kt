@@ -28,7 +28,6 @@ class FavoritesPlaceAdapter(
     override fun onBindViewHolder(holder: FavoritesPlaceViewHolder, position: Int) {
         val place = getItem(position)
         with(holder.binding) {
-            Log.d("FavoritesPlaceAdapter", "place.localName ${place.localNames}   ${place.selected}")
             placeName.text = place.localNames
             country.text = place.country
             state.text = place.state

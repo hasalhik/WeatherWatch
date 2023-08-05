@@ -27,6 +27,6 @@ interface CurrentWeatherDao {
 
 
     @Query("UPDATE current_weather_list SET selected = 'false'")
-    fun setAllSelectedToFalse()
+    suspend fun setAllSelectedToFalse()
 
 }

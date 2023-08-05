@@ -12,4 +12,5 @@ interface WeatherRepository {
     fun getCurrentWeatherList(): LiveData<List<CurrentWeather>>
     fun getForecast(): LiveData<Forecast>
     fun getSelectedCurrentWeather(): LiveData<CurrentWeather>
+
 }

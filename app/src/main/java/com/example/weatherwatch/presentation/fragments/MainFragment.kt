@@ -38,14 +38,22 @@ class MainFragment : Fragment() {
         component.inject(this)
     }
 
-    @SuppressLint("DiscouragedApi", "SetTextI18n", "UseCompatLoadingForDrawables")
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
-        binding.dataConstrainLayout.visibility = View.INVISIBLE
+        Log.d("MainFragment", "onCreateView")
+        Log.d("MainFragment", "onResume")
         viewModel.loadData()
+        setView()
+        return binding.root
+    }
+    @SuppressLint("DiscouragedApi", "SetTextI18n", "UseCompatLoadingForDrawables")
+    private fun setView() {
+        binding.dataConstrainLayout.visibility = View.INVISIBLE
+
         viewModel.currentWeather.observe(viewLifecycleOwner) {
             binding.progressBar.visibility = View.GONE
             if (it.weather.size == 1) {
@@ -74,9 +82,6 @@ class MainFragment : Fragment() {
             Log.d("MainFragment", "forecast: ${it.toString()}")
             adapter.submitList(it.listForecast)
         }
-
-
-        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

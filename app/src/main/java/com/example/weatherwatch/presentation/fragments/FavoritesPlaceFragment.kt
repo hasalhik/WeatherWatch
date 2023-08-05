@@ -78,6 +78,7 @@ class FavoritesPlaceFragment : Fragment() {
 
             override fun onSelectClick(place: PlaceInfo) {
                 viewModel.placeSelect(place)
+                parentFragmentManager.popBackStack()
             }
         }
         binding.rvPlacesList.adapter = adapter

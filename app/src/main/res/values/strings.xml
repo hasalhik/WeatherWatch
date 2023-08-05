@@ -4,7 +4,7 @@
     <string name="favorites">Избранное</string>
     <string name="settings">Настройки</string>
     <string name="forecast_for_5_days">Прогноз на 5 дней</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="city_or_area">Город или район</string>
     <string name="files_like">Ощущается как:</string>
@@ -14,4 +14,14 @@
     <string name="choose_place">Выберите город:</string>
     <string name="mm_Hg"> мм рт. ст.</string>
 
+
+    <string-array name="day_of_week">
+        <item>Понедельник</item>
+        <item>Вторник</item>
+        <item>Среда</item>
+        <item>Четверг</item>
+        <item>Пятница</item>
+        <item>Суббота</item>
+        <item>Воскресенье</item>
+    </string-array>
 </resources>

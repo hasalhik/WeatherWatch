@@ -1,7 +1,6 @@
 package com.example.weatherwatch.data.mapper
 
 import android.util.Log
-import com.example.weatherwatch.R
 import com.example.weatherwatch.data.database.CurrentWeatherDbModel
 import com.example.weatherwatch.data.database.ForecastDbModel
 import com.example.weatherwatch.data.database.PlaceInfoDbModel
@@ -15,7 +14,6 @@ import com.example.weatherwatch.data.natework.model.weather.WindDto
 import com.example.weatherwatch.domain.weather.entities.*
 import com.example.weatherwatch.domain.place.PlaceInfo
 import com.google.gson.Gson
-import java.sql.Timestamp
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -131,7 +129,7 @@ class PlaceMapper @Inject constructor() {
         main = mainDtoToMainEntity(it.main),
         visibility = it.visibility,
         wind = it.wind?.let { it1 -> windDbModelToEntity(it1) } ?: Wind(),
-        dt = it.dt?.let { it1 -> dateTime(it1) },
+        dt = it.dt?.let { it1 -> timestampToTime(it1) },
         sys = Sys(
             sunrise = it.sys?.sunrise,
             sunset = it.sys?.sunset
@@ -141,7 +139,7 @@ class PlaceMapper @Inject constructor() {
         cod = it.cod
     )
 
-    private fun dateTime(time: Int): String {
+    private fun timestampToTime(time: Int): String {
         val zoneId = ZoneId.systemDefault()
         val instant = Instant.ofEpochSecond(time.toLong())
         val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
@@ -203,17 +201,25 @@ class PlaceMapper @Inject constructor() {
 
     private fun listForecastDtoToEntity(it: ListForecastDto) =
         ListForecast(
-            dt = it.dt?.let { it1 -> dateDay(it1) },
+            dt = it.dt,
             main = mainDtoToMainEntity(it.mainDto),
             weather = ArrayList(it.weather.map { weatherDtoToEntity(it) }),
             wind = it.windDto?.let { it1 -> windDbModelToEntity(it1) },
             visibility = it.visibility,
             pop = it.pop,
             sysForecast = SysForecast(it.sysForecastDto?.pod),
-            dtTxt = it.dt?.let { it1 -> dateTime(it1) }
+            textTime = it.dt?.let { it1 -> timestampToTime(it1) },
+            textDate =it.dt?.let { it1 -> timestampToDay(it1) },
+            textDayOfWeek = it.dt?.let { it1 -> timestampToDayOfWeek(it1) }
         )
 
-    private fun dateDay(time: Int): String {
+    private fun timestampToDayOfWeek(timestamp: Int) =
+        Calendar.getInstance().apply {
+            time = Date(timestamp.toLong()*1000)
+        }
+            .get(Calendar.DAY_OF_WEEK)
+
+    private fun timestampToDay(time: Int): String {
         val res = timestampDate(time.toLong())
         val today = timestampDate(Instant.now().epochSecond)
         val tomorrow = timestampDate(
@@ -257,6 +263,10 @@ class PlaceMapper @Inject constructor() {
             else -> ""
 
         }
+    }
+
+    fun forecastDbModelToDailyEntity(forecastDbModel: ForecastDbModel) {
+
     }
 
 

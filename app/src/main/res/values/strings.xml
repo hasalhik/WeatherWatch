@@ -12,7 +12,29 @@
     <string name="pressure">Давление:</string>
     <string name="humid">Влажность:</string>
     <string name="choose_place">Выберите город:</string>
+
+    <string name="temperature">Tемпература:</string>
+    <string name="wind_strength">Сила ветра:</string>
+
     <string name="mm_Hg"> мм рт. ст.</string>
+    <string name="hPa">гПа</string>
+    <string name="celsius">°C</string>
+    <string name="fahrenheit">°F</string>
+    <string name="km_h">км/ч</string>
+    <string name="m_s">м/с</string>
+
+    <string name="today">Сегодня</string>
+    <string name="tomorrow">Завтра</string>
+
+    <string name="n_wind">↑ С</string>
+    <string name="ne_wind">↗ СВ</string>
+    <string name="e_wind">→ В</string>
+    <string name="se_wind">↘ ЮВ</string>
+    <string name="s_wind">↓ Ю</string>
+    <string name="sw_wind">↙ ЮЗ</string>
+    <string name="w_wind">← З</string>
+    <string name="nw_wind">↖ СЗ</string>
+
 
 
     <string-array name="day_of_week">

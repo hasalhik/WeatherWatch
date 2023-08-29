@@ -20,7 +20,7 @@ class ForecastAdapter(
     private val context: Context,
 
     ) : ListAdapter<ListForecast, ForecastViewHolder>(ListForecastDiffCallBack) {
-    var onPlaceClickListener: OnPlaceClickListener? = null
+     var onPlaceClickListener: OnPlaceClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastViewHolder {
         val binding = ItemForecastBinding.inflate(
@@ -35,6 +35,8 @@ class ForecastAdapter(
     override fun onBindViewHolder(holder: ForecastViewHolder, position: Int) {
         val forecast = getItem(position)
         with(holder.binding) {
+            dividerTop.visibility= View.INVISIBLE
+            dividerBottom.visibility= View.INVISIBLE
             when(forecast.textTime){
                 "00:00"->dividerTop.visibility= View.VISIBLE
                 "21:00"->dividerBottom.visibility= View.VISIBLE

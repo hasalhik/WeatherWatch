@@ -27,7 +27,7 @@ class SearchPlaceViewModel @Inject constructor(
             }
     }
     fun insertPlaceToDb(placeInfo: PlaceInfo){
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
            placeInfo.selected=true
             insertPlaceToDbUseCase.invoke(placeInfo)
         }

@@ -1,6 +1,11 @@
 package com.example.weatherwatch.data.mapper
 
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.util.Log
+import com.example.weatherwatch.R
 import com.example.weatherwatch.data.database.CurrentWeatherDbModel
 import com.example.weatherwatch.data.database.ForecastDbModel
 import com.example.weatherwatch.data.database.PlaceInfoDbModel
@@ -11,19 +16,72 @@ import com.example.weatherwatch.data.natework.model.place.PlaceInfoDto
 import com.example.weatherwatch.data.natework.model.weather.CurrentWeatherDto
 import com.example.weatherwatch.data.natework.model.weather.WeatherDto
 import com.example.weatherwatch.data.natework.model.weather.WindDto
-import com.example.weatherwatch.domain.weather.entities.*
+import com.example.weatherwatch.domain.SettingConstants
 import com.example.weatherwatch.domain.place.PlaceInfo
+import com.example.weatherwatch.domain.weather.entities.City
+import com.example.weatherwatch.domain.weather.entities.Coord
+import com.example.weatherwatch.domain.weather.entities.CurrentWeather
+import com.example.weatherwatch.domain.weather.entities.Forecast
+import com.example.weatherwatch.domain.weather.entities.ListForecast
+import com.example.weatherwatch.domain.weather.entities.Main
+import com.example.weatherwatch.domain.weather.entities.Sys
+import com.example.weatherwatch.domain.weather.entities.SysForecast
+import com.example.weatherwatch.domain.weather.entities.Weather
+import com.example.weatherwatch.domain.weather.entities.Wind
+import com.example.weatherwatch.presentation.WeatherApp
 import com.google.gson.Gson
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
-class PlaceMapper @Inject constructor() {
+ class  Mapper @Inject constructor(private val application: Application) {
 
+    private var prefs =
+        application.getSharedPreferences(
+            SettingConstants.APP_SETTINGS_NAME,
+            Context.MODE_PRIVATE
+        )
+     private val onSharedPreferenceChangeListener= object : OnSharedPreferenceChangeListener{
+         override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
+             setPref()
+         }
+     }
+
+
+    private var isTemperatureInFahrenheit: Boolean = false
+    private var isWindInKmPerHour: Boolean = false
+    private var isPressureInHpa : Boolean = false
+    init {
+        setPref()
+        prefs.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
+    }
+
+    private fun setPref() {
+        Log.d("Mapper", "setPref")
+
+        isTemperatureInFahrenheit =
+            prefs.getBoolean(
+                SettingConstants.IS_TEMPERATURE_IN_FAHRENHEIT,
+                false
+            )
+
+        isWindInKmPerHour =
+            prefs.getBoolean(
+                SettingConstants.IS_WIND_IN_KM_PER_HOUR,
+                false
+            )
+
+        isPressureInHpa =
+            prefs.getBoolean(
+                SettingConstants.IS_PRESSURE_IN_HPA,
+                false
+            )
+
+    }
 
     fun listPlaceInfoDtoToListPlaceInfo(
         listJsonContainer: List<PlaceInfoDto>
@@ -31,7 +89,6 @@ class PlaceMapper @Inject constructor() {
         val result: MutableList<PlaceInfo> = mutableListOf()
         for (jsonObject in listJsonContainer ?: return result) {
 
-            Log.d("listJsonContainerToToListPlaceInfo", "jsonObject ${jsonObject.toString()}")
             val priceInfo = Gson().fromJson(
                 Gson().toJson(jsonObject),
                 PlaceInfo::class.java
@@ -40,29 +97,13 @@ class PlaceMapper @Inject constructor() {
             if (!jsonObject.localNames?.ru.isNullOrEmpty())
                 priceInfo.localNames = jsonObject.localNames?.ru
 
-            Log.d("listJsonContainerToToListPlaceInfo", "jsonObject ${priceInfo.toString()}")
             result.add(priceInfo)
         }
         return result
     }
 
-    fun placeInfoToDbModel(place: PlaceInfo): PlaceInfoDbModel {
-        Log.d(
-            "placeInfoToDbModel", "place ${
-                PlaceInfoDbModel(
-                    place.name,
-                    place.localNames,
-                    place.lat,
-                    place.lon,
-                    place.country,
-                    place.state,
-                    selected = place.selected
-                ).toString()
-            }"
-        )
-
-
-        return PlaceInfoDbModel(
+    fun placeInfoToDbModel(place: PlaceInfo): PlaceInfoDbModel =
+        PlaceInfoDbModel(
             place.name,
             place.localNames,
             place.lat,
@@ -71,7 +112,6 @@ class PlaceMapper @Inject constructor() {
             place.state,
             selected = place.selected
         )
-    }
 
 
     fun mapListDbModelToListEntity(it: List<PlaceInfoDbModel>) = it.map {
@@ -95,8 +135,8 @@ class PlaceMapper @Inject constructor() {
             currentWeatherDtoToDbModel(it, false, it.name)
         }
 
-    fun currentWeatherDtoToDbModel(it: CurrentWeatherDto, selected: Boolean, name: String?) =
-        CurrentWeatherDbModel(
+    fun currentWeatherDtoToDbModel(it: CurrentWeatherDto, selected: Boolean, name: String?):CurrentWeatherDbModel {
+       return CurrentWeatherDbModel(
             coord = it.coordDto,
             weather = it.weather,
             base = it.base,
@@ -110,7 +150,7 @@ class PlaceMapper @Inject constructor() {
             cod = it.cod,
             selected = selected
 
-        )
+        )}
 
     fun listCurrentWeatherDbModelToListEntity(listDBModel: List<CurrentWeatherDbModel>): List<CurrentWeather> =
         listDBModel.map {
@@ -148,22 +188,40 @@ class PlaceMapper @Inject constructor() {
 
     private fun mainDtoToMainEntity(it: MainDto?) =
         Main(
-            temp = kelvinToCelsius(it?.temp),
-            feelsLike = kelvinToCelsius(it?.feelsLike),
+            temp = kelvinOrFahrenheitTemp(it?.temp),
+            feelsLike = kelvinOrFahrenheitTemp(it?.feelsLike),
             tempMin = it?.tempMin?.plus(KELVIN_TO_CELSIUS),
             tempMax = it?.tempMax?.plus(KELVIN_TO_CELSIUS),
-            pressure = it?.pressure?.times(HPA_TO_MMHG)?.toInt().toString() + " мм рт. ст.",
+            pressure = convertPressure(it?.pressure),
             seaLevel = it?.seaLevel,
             grndLevel = it?.grndLevel,
             humidity = it?.humidity.toString() + "%",
             tempKf = it?.tempKf,
         )
 
+    private fun convertPressure(pressure: Int?) =
+        if (isPressureInHpa) pressure.toString() + " ${application.resources.getString(R.string.hPa)}"
+        else
+            pressure?.times(HPA_TO_MMHG)?.toInt()
+                .toString() + " ${application.resources.getString(R.string.mm_Hg)}"
+
+
+    private fun kelvinOrFahrenheitTemp(temp: Double?) =
+        if (isTemperatureInFahrenheit) kelvinToFahrenheit(temp) else
+            kelvinToCelsius(temp)
+
     private fun kelvinToCelsius(temp: Double?): String {
         if (temp == null) return ""
         val res = temp.plus(KELVIN_TO_CELSIUS).toInt()
-        if (res > 0.0) return "+$res°C"
-        else return "$res°C"
+        return if (res > 0.0) "+$res°C"
+        else "$res°C"
+    }
+
+    private fun kelvinToFahrenheit(temp: Double?): String {
+        if (temp == null) return ""
+        val res = ((1.8 * (temp - 273) + 32)).toInt()
+        return if (res > 0.0) "+$res°F"
+        else "$res°F"
     }
 
     private fun weatherDtoToEntity(it: WeatherDto): Weather =
@@ -209,13 +267,13 @@ class PlaceMapper @Inject constructor() {
             pop = it.pop,
             sysForecast = SysForecast(it.sysForecastDto?.pod),
             textTime = it.dt?.let { it1 -> timestampToTime(it1) },
-            textDate =it.dt?.let { it1 -> timestampToDay(it1) },
+            textDate = it.dt?.let { it1 -> timestampToDay(it1) },
             textDayOfWeek = it.dt?.let { it1 -> timestampToDayOfWeek(it1) }
         )
 
     private fun timestampToDayOfWeek(timestamp: Int) =
         Calendar.getInstance().apply {
-            time = Date(timestamp.toLong()*1000)
+            time = Date(timestamp.toLong() * 1000)
         }
             .get(Calendar.DAY_OF_WEEK)
 
@@ -226,8 +284,8 @@ class PlaceMapper @Inject constructor() {
             Calendar.getInstance().apply { add(Calendar.DATE, 1) }.timeInMillis / 1000L
         )
         when (res) {
-            today -> return "Сегодня"
-            tomorrow -> return "Завтра"
+            today -> return application.resources.getString(R.string.today)
+            tomorrow -> return application.resources.getString(R.string.tomorrow)
         }
         return res.substring(0, res.length - 5)
     }
@@ -236,37 +294,40 @@ class PlaceMapper @Inject constructor() {
         val zoneId = ZoneId.systemDefault()
         val instant = Instant.ofEpochSecond(time)
         val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
-        val res = instant.atZone(zoneId).format(formatter)
-        return res
+        return instant.atZone(zoneId).format(formatter)
     }
 
     private fun windDbModelToEntity(it: WindDto) =
         Wind(
-            it.speed.toString() + " м/с, ",
+            getWindSpeed(it.speed),
             deg = windDirectionDegreesToDirection(it.deg),
             gust = it.gust.toString()
         )
+
+    private fun getWindSpeed(speed: Double?) =
+        if (isWindInKmPerHour) String.format("%.1f", (speed?.times(3.6))) + " ${
+            application.resources.getString(
+                R.string.km_h
+            )
+        }, "
+        else speed.toString() + " ${application.resources.getString(R.string.m_s)}, "
 
     private fun windDirectionDegreesToDirection(it: Int?): String {
 
         if (it == null) return ""
         return when (it + 0.0) {
-            in 0.0..22.5 -> "↑ С"
-            in 22.5..67.5 -> "↗ СВ"
-            in 67.5..112.5 -> "→ В"
-            in 112.5..157.5 -> "↘ ЮВ"
-            in 157.5..202.5 -> "↓ Ю"
-            in 202.5..247.5 -> "↙ ЮЗ"
-            in 247.5..292.5 -> "← З"
-            in 292.5..337.5 -> "↖ СЗ"
-            in 337.5..360.0 -> "↑ С"
+            in 0.0..22.5 -> application.resources.getString(R.string.n_wind)
+            in 22.5..67.5 -> application.resources.getString(R.string.ne_wind)
+            in 67.5..112.5 -> application.resources.getString(R.string.e_wind)
+            in 112.5..157.5 -> application.resources.getString(R.string.se_wind)
+            in 157.5..202.5 -> application.resources.getString(R.string.s_wind)
+            in 202.5..247.5 -> application.resources.getString(R.string.sw_wind)
+            in 247.5..292.5 -> application.resources.getString(R.string.w_wind)
+            in 292.5..337.5 -> application.resources.getString(R.string.nw_wind)
+            in 337.5..360.0 -> application.resources.getString(R.string.n_wind)
             else -> ""
 
         }
-    }
-
-    fun forecastDbModelToDailyEntity(forecastDbModel: ForecastDbModel) {
-
     }
 
 

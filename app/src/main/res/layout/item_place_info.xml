@@ -18,13 +18,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="16dp"
+            android:paddingEnd="0dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@id/country"
             app:layout_constraintEnd_toStartOf="@+id/selectIcon"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Москва" />
+            tools:text="Москва"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/country"
@@ -56,7 +58,7 @@
 
         <ImageView
             android:id="@+id/selectIcon"
-            style="@style/big_icon"
+            style="@style/small_icon"
             app:layout_constraintBottom_toBottomOf="@+id/state"
             app:layout_constraintEnd_toStartOf="@+id/deleteIcon"
             app:layout_constraintTop_toTopOf="@+id/placeName"

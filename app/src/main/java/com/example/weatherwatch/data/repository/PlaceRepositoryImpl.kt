@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.example.weatherwatch.data.database.PlaceInfoDao
-import com.example.weatherwatch.data.mapper.PlaceMapper
+import com.example.weatherwatch.data.mapper.Mapper
 import com.example.weatherwatch.data.natework.ApiService
 import com.example.weatherwatch.domain.place.PlaceInfo
 import com.example.weatherwatch.domain.place.PlaceRepository
@@ -13,7 +13,7 @@ import javax.inject.Inject
 class PlaceRepositoryImpl @Inject constructor(
     //private val application: Application,
     private val apiService: ApiService,
-    private val mapper: PlaceMapper,
+    private val mapper: Mapper,
     private val placeInfoDao: PlaceInfoDao,
 ) : PlaceRepository {
     override suspend fun insertPlaceToDb(place: PlaceInfo) {

@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.example.weatherwatch.data.database.*
-import com.example.weatherwatch.data.mapper.PlaceMapper
+import com.example.weatherwatch.data.mapper.Mapper
 import com.example.weatherwatch.data.natework.ApiService
 import com.example.weatherwatch.domain.weather.WeatherRepository
 import com.example.weatherwatch.domain.weather.entities.CurrentWeather
@@ -15,7 +15,7 @@ import javax.inject.Inject
 class WeatherRepositoryImpl @Inject constructor(
     //private val application: Application,
     private val apiService: ApiService,
-    private val mapper: PlaceMapper,
+    private val mapper: Mapper,
     private val placeInfoDao: PlaceInfoDao,
     private val forecastDao: ForecastDao,
     private val currentWeatherDao: CurrentWeatherDao,

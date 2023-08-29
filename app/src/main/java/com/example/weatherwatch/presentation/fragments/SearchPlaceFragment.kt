@@ -52,6 +52,7 @@ class SearchPlaceFragment : Fragment() {
                 Log.d("SearchPlaceFragment", "Start insert ${placeInfo.name}")
                 viewModel.insertPlaceToDb(placeInfo)
                 parentFragmentManager.popBackStack()
+                parentFragmentManager.popBackStack()
 
             }
         }
@@ -60,7 +61,7 @@ class SearchPlaceFragment : Fragment() {
         viewModel.placeInfoList.observe(viewLifecycleOwner) {
             Log.d(
                 "SearchPlaceFragment layoutManager: ",
-                "${binding.rvResult.layoutManager.toString()}"
+                binding.rvResult.layoutManager.toString()
             )
             adapter.submitList(it)
         }
